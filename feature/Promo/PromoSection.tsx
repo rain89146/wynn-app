@@ -7,13 +7,13 @@ import { Promo, PromoProps } from "@/components/promo"
 
 export type PromoSectionProps = {
   promos: PromoProps[]
-  intro: IntroductionProps
+  intro?: IntroductionProps|null;
 }
 
 export function PromoSection({ promos, intro }: PromoSectionProps) {
   return (
     <LandscapeSectionLayout className="bg-[#f0ece9]">
-      <Introduction {...intro} />
+      {intro && <Introduction {...intro} />}
       <AnimatedList
         items={promos}
         renderItem={(promo) => <Promo {...promo} />}

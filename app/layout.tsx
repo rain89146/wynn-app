@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/Providers";
 import { MainLayout } from "@/components/layouts";
 import Header from "@/components/header";
-import { LinkObject } from "@/components/types/types";
 import Footer from "@/components/footer";
+import { ContentfulClient } from "@/lib/contentful/contentful";
+import { NavigationCollectionObj } from "@/lib/contentful/model/navigation";
+import { HeaderCollectionObj } from "@/lib/contentful/model/header";
+import { ToFooterProps, ToHeaderProps } from "@/lib/contentful/extensions/mapper";
+import logger from "@/lib/winston/logger";
+import { notFound } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,44 +23,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Welcome to Wynn Resorts | Wynn Resort, Limited",
   description: "Experience the unparalleled luxury and world-class hospitality",
+  title: {
+    default: "Welcome to Wynn Resorts | Wynn Resort, Limited",
+    template: "%s | Wynn Resort, Limited",
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // fetch global data here, such as navigation or user data
-  const copyrightText = `© {year} Wynn Resorts Holdings, LLC. All rights reserved.`;
-  const logo = "https://images.ctfassets.net/d25vj3coyj0e/1yWB7bkYGT5alNEF5Wzvww/522dd51c67c7316c8be7914623430165/logo.png"
-  const navigationLinks: LinkObject[] = [
-    { displayName: 'Las Vegas', url: '/destination/las-vegas', alt: 'Las Vegas' },
-    { displayName: 'Boston Harbor', url: '/destination/boston', alt: 'Boston' },
-    { displayName: 'Macau', url: '/destination/macau', alt: 'Macau' },
-    { displayName: 'Cotai', url: '/destination/cotai', alt: 'Cotai' },
-    { displayName: 'Contact Us', url: '/contact', alt: 'Contact' },
-  ];
+  // fetch navigation data from contentful
+  const res: {headerCollection: HeaderCollectionObj, navigationCollection: NavigationCollectionObj, footerCollection: NavigationCollectionObj}|null = await ContentfulClient.getNavigation("corp-navigation", "corp-header", "corp-footer");
+  
+  // if fetch fails, log error and show 404 page
+  if (res === null) {
+    logger.error("Failed to fetch navigation data");
+    notFound();
+  }
+
+  // map contentful data to header props
+  const headerProps = ToHeaderProps(res.headerCollection, res.navigationCollection);
+  const footerProps = ToFooterProps(res.headerCollection, res.footerCollection);
 
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Providers>
+      <AnimatePresence mode="sync">
+        <body className="min-h-full flex flex-col">
           <MainLayout>
-            <Header logo={logo} menuItems={navigationLinks} />
+            <Header {...headerProps} />
             {children}
-            <Footer
-              copyrightText={copyrightText}
-              logoUrl={logo}
-              navigationLinks={navigationLinks}
-            />
+            <Footer {...footerProps} />
           </MainLayout>
-        </Providers>
-      </body>
+        </body>
+      </AnimatePresence>
     </html>
   );
 }

@@ -1,19 +1,28 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BurgerIcon } from './icons';
-import { LinkObject } from './types/types';
+import { LinkObject } from '@/lib/contentful/model/content';
+import { usePathname } from 'next/navigation';
 
-type HeaderProps = {
+export type HeaderProps = {
   logo: string;
   menuItems: LinkObject[];
 }
 
 export default function Header({ logo, menuItems }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const path = usePathname();
+
+  //  clean up
+  useEffect(() => {
+    return () => {
+      setMenuOpen(false);
+    }
+  }, [path]);
 
   return (
     <>

@@ -1,5 +1,5 @@
+import { LinkObject } from "@/lib/contentful/model/content";
 import Link from "next/link";
-import { LinkObject } from "./types/types";
 
 export function PrimaryLinkCta({ctaLink}: {ctaLink: LinkObject}) {
   return (
