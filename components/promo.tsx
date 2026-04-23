@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { PrimaryLinkCta } from './cta';
-import { LinkObject } from './types/types';
+import { LinkObject } from '@/lib/contentful/model/content';
 
 export type PromoProps = {
   title: string;
@@ -14,7 +14,7 @@ export function Promo({ title, description, imageUrl, imagePosition, ctaLink }: 
   return (
     <div className={`flex flex-col ${imagePosition === 'left' ? 'md:flex-row' : 'md:flex-row-reverse'} bg-white overflow-hidden`}>
       <div className="relative w-full md:w-[55%] aspect-[4/3]">
-        <Image src={imageUrl} alt={ctaLink.alt || title} fill className="object-cover" />
+        <Image src={imageUrl} alt={ctaLink.alt || title} fill className="object-cover" loading='lazy' />
       </div>
       <div className="w-full h-auto md:w-1/2 self-stretch p-10 flex flex-col gap-6 justify-start">
         <h2 className="text-xl !leading-[30px] text-left font-serif font-medium text-[#775c3d]">{title}</h2>

@@ -1,9 +1,9 @@
 import React, {useMemo} from 'react'
 import Image from 'next/image';
-import { LinkObject } from './types/types';
 import Link from 'next/link';
+import { LinkObject } from '@/lib/contentful/model/content';
 
-type FooterProps = {
+export type FooterProps = {
   copyrightText: string;
   logoUrl: string;
   navigationLinks: LinkObject[];
